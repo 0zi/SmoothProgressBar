@@ -15,7 +15,6 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -25,9 +24,7 @@ import static fr.castorflex.android.circularprogressbar.Utils.checkNotNull;
 import static fr.castorflex.android.circularprogressbar.Utils.checkPositiveOrZero;
 import static fr.castorflex.android.circularprogressbar.Utils.checkSpeed;
 
-public class CircularProgressDrawable
-    extends Drawable
-    implements Animatable {
+public class CircularProgressDrawable extends Drawable implements Animatable {
 
   public interface OnEndListener {
     void onEnd(CircularProgressDrawable drawable);
@@ -36,8 +33,7 @@ public class CircularProgressDrawable
   public static final int STYLE_NORMAL = 0;
   public static final int STYLE_ROUNDED = 1;
 
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({STYLE_NORMAL, STYLE_ROUNDED})
+  @Retention(RetentionPolicy.SOURCE) @IntDef({ STYLE_NORMAL, STYLE_ROUNDED })
   public @interface Style {
 
   }
@@ -67,28 +63,23 @@ public class CircularProgressDrawable
     initDelegate();
   }
 
-  @Override
-  public void draw(Canvas canvas) {
+  @Override public void draw(Canvas canvas) {
     if (isRunning()) mPBDelegate.draw(canvas, mPaint);
   }
 
-  @Override
-  public void setAlpha(int alpha) {
+  @Override public void setAlpha(int alpha) {
     mPaint.setAlpha(alpha);
   }
 
-  @Override
-  public void setColorFilter(ColorFilter cf) {
+  @Override public void setColorFilter(ColorFilter cf) {
     mPaint.setColorFilter(cf);
   }
 
-  @Override
-  public int getOpacity() {
+  @Override public int getOpacity() {
     return PixelFormat.TRANSLUCENT;
   }
 
-  @Override
-  protected void onBoundsChange(Rect bounds) {
+  @Override protected void onBoundsChange(Rect bounds) {
     super.onBoundsChange(bounds);
     float border = mOptions.borderWidth;
     mBounds.left = bounds.left + border / 2f + .5f;
@@ -97,9 +88,7 @@ public class CircularProgressDrawable
     mBounds.bottom = bounds.bottom - border / 2f - .5f;
   }
 
-
-  @Override
-  public void start() {
+  @Override public void start() {
     initDelegate();
     mPBDelegate.start();
     mRunning = true;
@@ -124,8 +113,7 @@ public class CircularProgressDrawable
     }
   }
 
-  @Override
-  public void stop() {
+  @Override public void stop() {
     mRunning = false;
     mPBDelegate.stop();
     invalidateSelf();
@@ -138,9 +126,18 @@ public class CircularProgressDrawable
     invalidateSelf();
   }
 
-  @Override
-  public boolean isRunning() {
+  @Override public boolean isRunning() {
     return mRunning;
+  }
+
+  public final void pause() {
+    mRunning = false;
+    mPBDelegate.pause();
+  }
+
+  public final void resume() {
+    mRunning = true;
+    mPBDelegate.resume();
   }
 
   public Paint getCurrentPaint() {
@@ -191,11 +188,11 @@ public class CircularProgressDrawable
       mSweepSpeed = 1f;
       mRotationSpeed = 1f;
       if (editMode) {
-        mColors = new int[]{Color.BLUE};
+        mColors = new int[] { Color.BLUE };
         mMinSweepAngle = 20;
         mMaxSweepAngle = 300;
       } else {
-        mColors = new int[]{context.getResources().getColor(R.color.cpb_default_color)};
+        mColors = new int[] { context.getResources().getColor(R.color.cpb_default_color) };
         mMinSweepAngle = context.getResources().getInteger(R.integer.cpb_default_min_sweep_angle);
         mMaxSweepAngle = context.getResources().getInteger(R.integer.cpb_default_max_sweep_angle);
       }
@@ -204,7 +201,7 @@ public class CircularProgressDrawable
     }
 
     public Builder color(int color) {
-      mColors = new int[]{color};
+      mColors = new int[] { color };
       return this;
     }
 
@@ -262,17 +259,9 @@ public class CircularProgressDrawable
     }
 
     public CircularProgressDrawable build() {
-      return new CircularProgressDrawable(
-          mPowerManager,
-          new Options(mAngleInterpolator,
-              mSweepInterpolator,
-              mBorderWidth,
-              mColors,
-              mSweepSpeed,
-              mRotationSpeed,
-              mMinSweepAngle,
-              mMaxSweepAngle,
-              mStyle));
+      return new CircularProgressDrawable(mPowerManager,
+          new Options(mAngleInterpolator, mSweepInterpolator, mBorderWidth, mColors, mSweepSpeed,
+              mRotationSpeed, mMinSweepAngle, mMaxSweepAngle, mStyle));
     }
   }
 }

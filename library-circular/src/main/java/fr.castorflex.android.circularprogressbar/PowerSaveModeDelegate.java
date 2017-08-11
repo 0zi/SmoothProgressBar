@@ -37,6 +37,14 @@ public class PowerSaveModeDelegate implements PBDelegate {
     mParent.unscheduleSelf(mRunnable);
   }
 
+  @Override public void resume() {
+    // NO-OP
+  }
+
+  @Override public void pause() {
+    // NO-OP
+  }
+
   @Override
   public void progressiveStop(CircularProgressDrawable.OnEndListener listener) {
     mParent.stop();

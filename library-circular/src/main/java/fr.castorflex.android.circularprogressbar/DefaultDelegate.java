@@ -5,6 +5,7 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
@@ -45,8 +46,7 @@ class DefaultDelegate implements PBDelegate {
   private CircularProgressDrawable mParent;
   private CircularProgressDrawable.OnEndListener mOnEndListener;
 
-  public DefaultDelegate(@NonNull CircularProgressDrawable parent,
-                         @NonNull Options options) {
+  public DefaultDelegate(@NonNull CircularProgressDrawable parent, @NonNull Options options) {
     mParent = parent;
     mSweepInterpolator = options.sweepInterpolator;
     mAngleInterpolator = options.angleInterpolator;
@@ -67,8 +67,7 @@ class DefaultDelegate implements PBDelegate {
     mParent.getCurrentPaint().setColor(mCurrentColor);
   }
 
-  @Override
-  public void draw(Canvas canvas, Paint paint) {
+  @Override public void draw(Canvas canvas, Paint paint) {
     float startAngle = mCurrentRotationAngle - mCurrentRotationAngleOffset;
     float sweepAngle = mCurrentSweepAngle;
     if (!mModeAppearing) {
@@ -83,17 +82,29 @@ class DefaultDelegate implements PBDelegate {
     canvas.drawArc(mParent.getDrawableBounds(), startAngle, sweepAngle, false, paint);
   }
 
-  @Override
-  public void start() {
+  @Override public void start() {
     mEndAnimator.cancel();
     reinitValues();
     mRotationAnimator.start();
     mSweepAppearingAnimator.start();
   }
 
-  @Override
-  public void stop() {
+  @Override public void stop() {
     stopAnimators();
+  }
+
+  @Override public void resume() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+      mRotationAnimator.resume();
+      mSweepAppearingAnimator.resume();
+    }
+  }
+
+  @Override public void pause() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+      mRotationAnimator.pause();
+      mSweepAppearingAnimator.pause();
+    }
   }
 
   private void stopAnimators() {
@@ -136,8 +147,7 @@ class DefaultDelegate implements PBDelegate {
     mRotationAnimator.setInterpolator(mAngleInterpolator);
     mRotationAnimator.setDuration((long) (ROTATION_ANIMATOR_DURATION / mRotationSpeed));
     mRotationAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-      @Override
-      public void onAnimationUpdate(ValueAnimator animation) {
+      @Override public void onAnimationUpdate(ValueAnimator animation) {
         float angle = getAnimatedFraction(animation) * 360f;
         setCurrentRotationAngle(angle);
       }
@@ -149,8 +159,7 @@ class DefaultDelegate implements PBDelegate {
     mSweepAppearingAnimator.setInterpolator(mSweepInterpolator);
     mSweepAppearingAnimator.setDuration((long) (SWEEP_ANIMATOR_DURATION / mSweepSpeed));
     mSweepAppearingAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-      @Override
-      public void onAnimationUpdate(ValueAnimator animation) {
+      @Override public void onAnimationUpdate(ValueAnimator animation) {
         float animatedFraction = getAnimatedFraction(animation);
         float angle;
         if (mFirstSweepAnimation) {
@@ -162,14 +171,12 @@ class DefaultDelegate implements PBDelegate {
       }
     });
     mSweepAppearingAnimator.addListener(new SimpleAnimatorListener() {
-      @Override
-      public void onAnimationStart(Animator animation) {
+      @Override public void onAnimationStart(Animator animation) {
         super.onAnimationStart(animation);
         mModeAppearing = true;
       }
 
-      @Override
-      protected void onPreAnimationEnd(Animator animation) {
+      @Override protected void onPreAnimationEnd(Animator animation) {
         if (isStartedAndNotCancelled()) {
           mFirstSweepAnimation = false;
           setDisappearing();
@@ -182,8 +189,7 @@ class DefaultDelegate implements PBDelegate {
     mSweepDisappearingAnimator.setInterpolator(mSweepInterpolator);
     mSweepDisappearingAnimator.setDuration((long) (SWEEP_ANIMATOR_DURATION / mSweepSpeed));
     mSweepDisappearingAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-      @Override
-      public void onAnimationUpdate(ValueAnimator animation) {
+      @Override public void onAnimationUpdate(ValueAnimator animation) {
         float animatedFraction = getAnimatedFraction(animation);
         setCurrentSweepAngle(mMaxSweepAngle - animatedFraction * (mMaxSweepAngle - mMinSweepAngle));
 
@@ -193,14 +199,14 @@ class DefaultDelegate implements PBDelegate {
         if (mColors.length > 1 && fraction > .7f) { //because
           int prevColor = mCurrentColor;
           int nextColor = mColors[(mCurrentIndexColor + 1) % mColors.length];
-          int newColor = (Integer) COLOR_EVALUATOR.evaluate((fraction - .7f) / (1 - .7f), prevColor, nextColor);
+          int newColor = (Integer) COLOR_EVALUATOR.evaluate((fraction - .7f) / (1 - .7f), prevColor,
+              nextColor);
           mParent.getCurrentPaint().setColor(newColor);
         }
       }
     });
     mSweepDisappearingAnimator.addListener(new SimpleAnimatorListener() {
-      @Override
-      protected void onPreAnimationEnd(Animator animation) {
+      @Override protected void onPreAnimationEnd(Animator animation) {
         if (isStartedAndNotCancelled()) {
           setAppearing();
           mCurrentIndexColor = (mCurrentIndexColor + 1) % mColors.length;
@@ -214,10 +220,8 @@ class DefaultDelegate implements PBDelegate {
     mEndAnimator.setInterpolator(END_INTERPOLATOR);
     mEndAnimator.setDuration(END_ANIMATOR_DURATION);
     mEndAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-      @Override
-      public void onAnimationUpdate(ValueAnimator animation) {
+      @Override public void onAnimationUpdate(ValueAnimator animation) {
         setEndRatio(1f - getAnimatedFraction(animation));
-
       }
     });
   }
@@ -226,21 +230,19 @@ class DefaultDelegate implements PBDelegate {
   /// Stop
   /////////////////////////////////////////////////////////
 
-  @Override
-  public void progressiveStop(CircularProgressDrawable.OnEndListener listener) {
+  @Override public void progressiveStop(CircularProgressDrawable.OnEndListener listener) {
     if (!mParent.isRunning() || mEndAnimator.isRunning()) {
       return;
     }
     mOnEndListener = listener;
     mEndAnimator.addListener(new SimpleAnimatorListener() {
 
-      @Override
-      public void onPreAnimationEnd(Animator animation) {
+      @Override public void onPreAnimationEnd(Animator animation) {
         mEndAnimator.removeListener(this);
         CircularProgressDrawable.OnEndListener endListener = mOnEndListener;
         mOnEndListener = null;
 
-        if(isStartedAndNotCancelled()) {
+        if (isStartedAndNotCancelled()) {
           setEndRatio(0f);
           mParent.stop();
           if (endListener != null) {
