@@ -131,12 +131,10 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
   }
 
   public final void pause() {
-    mRunning = false;
     mPBDelegate.pause();
   }
 
   public final void resume() {
-    mRunning = true;
     mPBDelegate.resume();
   }
 
