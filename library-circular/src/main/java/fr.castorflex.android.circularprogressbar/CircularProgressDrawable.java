@@ -126,6 +126,10 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
     invalidateSelf();
   }
 
+  public Builder newBuilder() {
+    return new Builder(this);
+  }
+
   @Override public boolean isRunning() {
     return mRunning;
   }
@@ -179,6 +183,18 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
 
     public Builder(@NonNull Context context, boolean editMode) {
       initValues(context, editMode);
+    }
+
+    public Builder(@NonNull CircularProgressDrawable circularProgressDrawable) {
+      mSweepInterpolator = circularProgressDrawable.mOptions.sweepInterpolator;
+      mAngleInterpolator = circularProgressDrawable.mOptions.angleInterpolator;
+      mBorderWidth = circularProgressDrawable.mOptions.borderWidth;
+      mColors = circularProgressDrawable.mOptions.colors;
+      mSweepSpeed = circularProgressDrawable.mOptions.sweepSpeed;
+      mRotationSpeed = circularProgressDrawable.mOptions.rotationSpeed;
+      mMinSweepAngle = circularProgressDrawable.mOptions.minSweepAngle;
+      mMaxSweepAngle = circularProgressDrawable.mOptions.maxSweepAngle;
+      mStyle = circularProgressDrawable.mOptions.style;
     }
 
     private void initValues(@NonNull Context context, boolean editMode) {
