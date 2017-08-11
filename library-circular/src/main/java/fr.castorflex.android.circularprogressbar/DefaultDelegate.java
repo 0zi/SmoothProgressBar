@@ -97,6 +97,8 @@ class DefaultDelegate implements PBDelegate {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       mRotationAnimator.resume();
       mSweepAppearingAnimator.resume();
+      mSweepDisappearingAnimator.resume();
+      mEndAnimator.resume();
     }
   }
 
@@ -104,6 +106,8 @@ class DefaultDelegate implements PBDelegate {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       mRotationAnimator.pause();
       mSweepAppearingAnimator.pause();
+      mSweepDisappearingAnimator.pause();
+      mEndAnimator.pause();
     }
   }
 
